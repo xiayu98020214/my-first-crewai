@@ -20,7 +20,9 @@ class MyFirstCrewai():
     
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
-    os.environ['DEEPSEEK_API_KEY'] = "sk-6ff3c581c63841dfb6f9dc4cf32e588a"
+    #personalized_activity_planner
+    #restaurant_scout
+    #itinerary_compiler
 
     llm = LLM(
         model="deepseek/deepseek-chat",
@@ -28,17 +30,25 @@ class MyFirstCrewai():
     )
 
     @agent
-    def researcher(self) -> Agent:
+    def personalized_activity_planner(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
+            config=self.agents_config['personalized_activity_planner'], # type: ignore[index]
             verbose=True,
             llm=self.llm
         )
-
+    
     @agent
-    def reporting_analyst(self) -> Agent:
+    def restaurant_scout(self) -> Agent:
         return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
+            config=self.agents_config['restaurant_scout'], # type: ignore[index]
+            verbose=True,
+            llm=self.llm
+        )
+    
+    @agent
+    def itinerary_compiler(self) -> Agent:
+        return Agent(
+            config=self.agents_config['itinerary_compiler'], # type: ignore[index]
             verbose=True,
             llm=self.llm
         )
@@ -46,16 +56,29 @@ class MyFirstCrewai():
     # To learn more about structured task outputs,
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
+
+    #personalized_activity_planning_task
+    #restaurant_scenic_location_scout_task
+    #itinerary_compilation_task
     @task
-    def research_task(self) -> Task:
+    def personalized_activity_planning_task(self) -> Task:
         return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
+            config=self.tasks_config['personalized_activity_planning_task'], # type: ignore[index]
+            agent=self.personalized_activity_planner()
+        )
+    
+    @task
+    def restaurant_scenic_location_scout_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['restaurant_scenic_location_scout_task'], # type: ignore[index]
+            agent=self.restaurant_scout()
         )
 
     @task
-    def reporting_task(self) -> Task:
+    def itinerary_compilation_task(self) -> Task:
         return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
+            config=self.tasks_config['itinerary_compilation_task'], # type: ignore[index]
+            agent=self.itinerary_compiler(),
             output_file='report.md'
         )
 

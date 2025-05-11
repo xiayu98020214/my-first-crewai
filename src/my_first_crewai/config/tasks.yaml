@@ -1,17 +1,58 @@
-research_task:
+personalized_activity_planning_task:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
-  expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+    研究并找到{destination}的有趣活动。
+    重点关注适合露营者兴趣和年龄组以及人员构成的活动和事件。
+    使用互联网搜索工具和推荐引擎收集信息。
 
-reporting_task:
-  description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+
+    旅行者信息:
+
+
+    - 出发地: {origin}
+
+    - 目的地: {destination}
+
+    - 旅行者年龄: {age}
+
+    - 酒店位置: {hotel_location}
+
+    - 交通信息: {flight_information}
+
+    - 旅行时长: {trip_duration}
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    每天推荐的活动和事件列表。
+    每个条目应包括活动名称、位置、简短描述，以及为什么适合该旅行者。
+    以及潜在的评价和评分。
+
+restaurant_scenic_location_scout_task:
+  description: >
+    寻找{destination}的高评分餐厅和美食体验。
+    推荐风景优美的地点、以及适合露营的地点和有趣的活动。
+    使用互联网搜索工具、餐厅评论网站和旅游指南。
+    确保找到适合不同口味和预算的各种选择，以及它们的评分。
+
+    旅行者信息:
+
+
+    - 出发地: {origin}
+
+    - 目的地: {destination}
+
+    - 旅行者年龄: {age}
+
+    - 酒店位置: {hotel_location}
+
+    - 交通信息: {flight_information}
+
+    - 旅行时长: {trip_duration}
+  expected_output: >
+    每天推荐的餐厅、风景点、适合露营的地点和有趣活动的列表。
+    每个条目应包括名称、位置（地址）、类型（菜系或活动类型）以及简短描述和评分。
+
+itinerary_compilation_task:
+  description: >
+    将所有研究的信息整合成{destination}的详细每日行程。
+    确保行程包含交通、酒店信息和所有计划的活动和餐饮体验。
+    使用文本格式和文档创建工具来组织信息。
+  expected_output: >
+    一份详细的行程文档，包含每日计划，包括交通、酒店详情、活动、餐厅和风景点。

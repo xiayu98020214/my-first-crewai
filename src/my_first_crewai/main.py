@@ -18,8 +18,12 @@ def run():
     Run the crew.
     """
     inputs = {
-        'topic': 'AI LLMs',
-        'current_year': str(datetime.now().year)
+        'origin': '深圳',
+        'destination': '东莞, 松山湖',
+        'age': 31,
+        'hotel_location': '松山湖',
+        'flight_information': '自驾',
+        'trip_duration': '2天'
     }
     
     try:
