@@ -17,12 +17,8 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # Replace with inputs you want to test with, it will automatically
 # interpolate any tasks and agents information
 
-def task_callback(output):
-    print(f"""
-        Task completed!
-        Task: {output.description}
-        Output: {output.raw}
-    """)
+# 假设任务名
+TASK_NAMES = ["任务1", "任务2", "任务3"]
 
 def run():
     """
@@ -85,13 +81,16 @@ def test():
         raise Exception(f"An error occurred while testing the crew: {e}")
 
 
+task_names_no = 0
 def run_crew_stream(origin, destination, age, hotel_location, flight_information, trip_duration):
     q = queue.Queue()
-    history = ""
+    history = {name: "" for name in TASK_NAMES}
 
     def task_callback(output):
+        global task_names_no
         msg = f"Task: {output.description}\nOutput: {output.raw}\n"
-        q.put(msg)
+        q.put((TASK_NAMES[task_names_no], msg))
+        task_names_no += 1
 
     def crew_thread():
         crew = MyFirstCrewai().crew()
@@ -104,20 +103,21 @@ def run_crew_stream(origin, destination, age, hotel_location, flight_information
             'flight_information': flight_information,
             'trip_duration': trip_duration
         })
-        q.put(None)  # 结束信号
+        q.put((None, None))  # 结束信号
 
     threading.Thread(target=crew_thread, daemon=True).start()
 
     while True:
-        item = q.get()
-        if item is None:
+        task_name, item = q.get()
+        if task_name is None:
             break
-        history += item + "\n"
-        yield history
+        if task_name in history:
+            history[task_name] += item + "\n"
+        yield [history[name] for name in TASK_NAMES]
         time.sleep(0.1)
 
 with gr.Blocks() as demo:
-    gr.Markdown("# CrewAI 流式任务演示")
+    gr.Markdown("# CrewAI 多任务流式演示")
     with gr.Row():
         origin = gr.Textbox(label="Origin", value="深圳")
         destination = gr.Textbox(label="Destination", value="东莞, 松山湖")
@@ -125,13 +125,14 @@ with gr.Blocks() as demo:
         hotel_location = gr.Textbox(label="Hotel Location", value="松山湖")
         flight_information = gr.Textbox(label="Flight Information", value="自驾")
         trip_duration = gr.Textbox(label="Trip Duration", value="2天")
-    output = gr.Textbox(label="任务进度 (task_callback)", lines=20)
+    with gr.Row():
+        task_outputs = [gr.Textbox(label=name, lines=10) for name in TASK_NAMES]
 
     btn = gr.Button("开始任务")
     btn.click(
         run_crew_stream,
         inputs=[origin, destination, age, hotel_location, flight_information, trip_duration],
-        outputs=output,
+        outputs=task_outputs,
         api_name="run_crew_stream"
     )
 
