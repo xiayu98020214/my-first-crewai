@@ -20,25 +20,7 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # 假设任务名
 TASK_NAMES = ["任务1", "任务2", "任务3"]
 
-def run():
-    """
-    Run the crew.
-    """
-    inputs = {
-        'origin': '深圳',
-        'destination': '东莞, 松山湖',
-        'age': 31,
-        'hotel_location': '松山湖',
-        'flight_information': '自驾',
-        'trip_duration': '2天'
-    }
-    
-    try:
-        crew = MyFirstCrewai().crew()
-        crew.task_callback = task_callback
-        MyFirstCrewai().crew().kickoff(inputs=inputs)
-    except Exception as e:
-        raise Exception(f"An error occurred while running the crew: {e}")
+
 
 
 def train():
@@ -82,7 +64,9 @@ def test():
 
 
 task_names_no = 0
-def run_crew_stream(origin, destination, age, hotel_location, flight_information, trip_duration):
+def run_crew_stream(user_input):
+    global task_names_no
+    task_names_no = 0
     q = queue.Queue()
     history = {name: "" for name in TASK_NAMES}
 
@@ -95,14 +79,7 @@ def run_crew_stream(origin, destination, age, hotel_location, flight_information
     def crew_thread():
         crew = MyFirstCrewai().crew()
         crew.task_callback = task_callback
-        crew.kickoff(inputs={
-            'origin': origin,
-            'destination': destination,
-            'age': age,
-            'hotel_location': hotel_location,
-            'flight_information': flight_information,
-            'trip_duration': trip_duration
-        })
+        crew.kickoff(inputs={'user_input': user_input})
         q.put((None, None))  # 结束信号
 
     threading.Thread(target=crew_thread, daemon=True).start()
@@ -135,6 +112,26 @@ with gr.Blocks() as demo:
         outputs=task_outputs,
         api_name="run_crew_stream"
     )
+
+
+
+
+with gr.Blocks() as demo:
+    gr.Markdown("# CrewAI 多任务流式演示")
+    with gr.Row():
+        user_input = gr.Textbox(label="用户输入", value="下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天")
+
+    with gr.Row():
+        task_outputs = [gr.Textbox(label=name, lines=10) for name in TASK_NAMES]
+
+    btn = gr.Button("开始任务")
+    btn.click(
+        run_crew_stream,
+        inputs=user_input,
+        outputs=task_outputs,
+        api_name="run_crew_stream"
+    )
+
 
 if __name__ == "__main__":
     demo.launch()
