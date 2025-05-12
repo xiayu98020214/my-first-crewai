@@ -93,26 +93,6 @@ def run_crew_stream(user_input):
         yield [history[name] for name in TASK_NAMES]
         time.sleep(0.1)
 
-with gr.Blocks() as demo:
-    gr.Markdown("# CrewAI 多任务流式演示")
-    with gr.Row():
-        origin = gr.Textbox(label="Origin", value="深圳")
-        destination = gr.Textbox(label="Destination", value="东莞, 松山湖")
-        age = gr.Number(label="Age", value=31)
-        hotel_location = gr.Textbox(label="Hotel Location", value="松山湖")
-        flight_information = gr.Textbox(label="Flight Information", value="自驾")
-        trip_duration = gr.Textbox(label="Trip Duration", value="2天")
-    with gr.Row():
-        task_outputs = [gr.Textbox(label=name, lines=10) for name in TASK_NAMES]
-
-    btn = gr.Button("开始任务")
-    btn.click(
-        run_crew_stream,
-        inputs=[origin, destination, age, hotel_location, flight_information, trip_duration],
-        outputs=task_outputs,
-        api_name="run_crew_stream"
-    )
-
 
 
 
@@ -134,4 +114,4 @@ with gr.Blocks() as demo:
 
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(server_name="0.0.0.0", server_port=8880)

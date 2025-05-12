@@ -6,7 +6,8 @@ from typing import List
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
-
+from crewai_tools import SerperDevTool, ScrapeWebsiteTool
+from my_first_crewai.tools.travel_tools import IPLocationTool, WeatherTool, TrafficTool, TimeTool
 @CrewBase
 class MyFirstCrewai():
     """MyFirstCrewai crew"""
@@ -32,9 +33,17 @@ class MyFirstCrewai():
     @agent
     def personalized_activity_planner(self) -> Agent:
         return Agent(
-            config=self.agents_config['personalized_activity_planner'], # type: ignore[index]
+            config=self.agents_config['personalized_activity_planner'], # type: ignore[index]            
             verbose=True,
-            llm=self.llm
+            llm=self.llm,
+            tools=[
+                SerperDevTool(),
+                ScrapeWebsiteTool(),
+                IPLocationTool(),
+                WeatherTool(),
+                TrafficTool(),
+                TimeTool(),
+            ],
         )
     
     @agent
