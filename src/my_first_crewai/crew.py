@@ -3,11 +3,13 @@ from crewai import LLM, Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
+from crewai.tools import BaseTool
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
 from crewai_tools import SerperDevTool, ScrapeWebsiteTool
-from my_first_crewai.tools.travel_tools import IPLocationTool, WeatherTool, TrafficTool, TimeTool
+from my_first_crewai.tools.gaode_sse_mcp import get_mcp_gaode_see_tools
+from my_first_crewai.tools.travel_tools import IPLocationTool, WeatherTool, TrafficTool, TimeTool, ImageSearchTool
 @CrewBase
 class MyFirstCrewai():
     """MyFirstCrewai crew"""
@@ -29,6 +31,17 @@ class MyFirstCrewai():
         model="deepseek/deepseek-chat",
         #api_base="https://api.deepseek.com"    
     )
+    gaode_tools:List[BaseTool] = get_mcp_gaode_see_tools()
+    tools=[
+                SerperDevTool(),
+                ScrapeWebsiteTool(),
+                IPLocationTool(),
+                WeatherTool(),
+                #TrafficTool(),
+                TimeTool(),
+                ImageSearchTool()               
+            ]
+    tools.extend(gaode_tools)
 
     @agent
     def personalized_activity_planner(self) -> Agent:
@@ -36,14 +49,7 @@ class MyFirstCrewai():
             config=self.agents_config['personalized_activity_planner'], # type: ignore[index]            
             verbose=True,
             llm=self.llm,
-            tools=[
-                SerperDevTool(),
-                ScrapeWebsiteTool(),
-                IPLocationTool(),
-                WeatherTool(),
-                TrafficTool(),
-                TimeTool(),
-            ],
+            tools=self.tools,
         )
     
     @agent
@@ -88,6 +94,8 @@ class MyFirstCrewai():
         return Task(
             config=self.tasks_config['itinerary_compilation_task'], # type: ignore[index]
             agent=self.itinerary_compiler(),
+            tools=[SerperDevTool(),
+                ScrapeWebsiteTool()],
             output_file='report.md'
         )
 

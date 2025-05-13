@@ -10,6 +10,10 @@ from datetime import datetime
 
 from my_first_crewai.crew import MyFirstCrewai
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
 # This main file is intended to be a way for you to run your
@@ -19,7 +23,6 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
 # 假设任务名
 TASK_NAMES = ["任务1", "任务2", "任务3"]
-
 
 
 
@@ -72,7 +75,7 @@ def run_crew_stream(user_input):
 
     def task_callback(output):
         global task_names_no
-        msg = f"Task: {output.description}\nOutput: {output.raw}\n"
+        msg = f"### {output.description}\n{output.raw}\n"
         q.put((TASK_NAMES[task_names_no], msg))
         task_names_no += 1
 
@@ -97,12 +100,12 @@ def run_crew_stream(user_input):
 
 
 with gr.Blocks() as demo:
-    gr.Markdown("# CrewAI 多任务流式演示")
+    gr.Markdown("# 周边旅游攻略")
     with gr.Row():
         user_input = gr.Textbox(label="用户输入", value="下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天")
 
-    with gr.Row():
-        task_outputs = [gr.Textbox(label=name, lines=10) for name in TASK_NAMES]
+    with gr.Column():
+        task_outputs = [gr.Markdown(value="", label=name, height=300, max_height=300, elem_classes="bordered-box",show_label=True) for name in TASK_NAMES]
 
     btn = gr.Button("开始任务")
     btn.click(

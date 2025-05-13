@@ -249,3 +249,54 @@ class TimeTool(BaseTool):
             
         except Exception as e:
             return f"获取时间信息失败: {str(e)}"
+
+class ImageSearchTool(BaseTool):
+    name: str = "图片搜索工具"
+    description: str = (
+        "使用提示词搜索网络图片。"
+        "输入格式为搜索提示词，例如：'深圳湾公园露营'、'松山湖露营地'等。"
+        "返回图片的URL链接。"
+    )
+
+    def _run(self, query: str) -> str:
+        try:
+            # 处理输入格式
+            if isinstance(query, str):
+                # 如果输入是JSON字符串，尝试解析
+                if query.startswith('{'):
+                    try:
+                        query_data = json.loads(query)
+                        query = query_data.get('query', '')
+                    except json.JSONDecodeError:
+                        pass
+                
+                # 处理Unicode转义序列
+                query = query.encode().decode('unicode_escape')
+            
+            # 从环境变量获取SerperDev API密钥
+            serper_api_key = os.getenv('SERPER_API_KEY')
+            if not serper_api_key:
+                return "错误：未找到SerperDev API密钥，请检查.env文件中的SERPER_API_KEY配置"
+            
+            # 构建API请求
+            url = "https://google.serper.dev/images"
+            headers = {
+                'X-API-KEY': serper_api_key,
+                'Content-Type': 'application/json'
+            }
+            payload = {
+                'q': query,
+                'num': 5  # 返回5张图片
+            }
+            
+            response = requests.post(url, headers=headers, json=payload)
+            data = response.json()
+            
+            if 'images' in data:
+                image_urls = [img['imageUrl'] for img in data['images']]
+                return "\n".join(image_urls)
+            else:
+                return f"无法获取图片，API返回：{data}"
+                
+        except Exception as e:
+            return f"获取图片失败: {str(e)}"
