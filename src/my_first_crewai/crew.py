@@ -29,6 +29,7 @@ class MyFirstCrewai():
 
     llm = LLM(
         model="deepseek/deepseek-chat",
+        stream=True
         #api_base="https://api.deepseek.com"    
     )
     gaode_tools:List[BaseTool] = get_mcp_gaode_see_tools()

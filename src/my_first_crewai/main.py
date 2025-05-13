@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # interpolate any tasks and agents information
 
 # 假设任务名
-TASK_NAMES = ["任务1", "任务2", "任务3","任务4"]
+TASK_NAMES = ["规划路线", "添加图片", "搜索美食","总结汇报"]
 
 
 
@@ -67,6 +67,7 @@ def test():
 
 
 task_names_no = 0
+start_time = 0
 def run_crew_stream(user_input):
     global task_names_no
     task_names_no = 0
@@ -75,13 +76,25 @@ def run_crew_stream(user_input):
 
     def task_callback(output):
         global task_names_no
+        global start_time
+        end_time = time.time()
+        duration = end_time - start_time
         msg = f"### {output.description}\n{output.raw}\n"
+        msg += f"### 耗时: {duration:.2f}秒\n"  
+        start_time = end_time
         q.put((TASK_NAMES[task_names_no], msg))
         task_names_no += 1
+    
+    def step_callback(output):
+        msg = f"### step {type(output)} \n {output.__dict__}"
+        q.put((TASK_NAMES[task_names_no], msg))
 
     def crew_thread():
         crew = MyFirstCrewai().crew()
         crew.task_callback = task_callback
+        #crew.step_callback = step_callback
+        global start_time
+        start_time = time.time()
         crew.kickoff(inputs={'user_input': user_input})
         q.put((None, None))  # 结束信号
 
