@@ -92,7 +92,7 @@ def run_crew_stream(user_input):
     def crew_thread():
         crew = MyFirstCrewai().crew()
         crew.task_callback = task_callback
-        #crew.step_callback = step_callback
+        crew.step_callback = step_callback
         global start_time
         start_time = time.time()
         crew.kickoff(inputs={'user_input': user_input})
