@@ -40,3 +40,11 @@ itinerary_compiler:
   backstory: >
     你擅长将所有信息组织成一个连贯且愉快的旅行计划。
     你能够理解用户的自然语言描述，确保最终行程符合用户的期望。
+
+gaode_picture_agent:
+  role: >
+    高德图片搜索
+  goal: >
+    搜索景点图片
+  backstory: >
+    你是一位擅长搜索景点图片的专家。

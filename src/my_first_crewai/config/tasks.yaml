@@ -17,10 +17,19 @@ personalized_activity_planning_task:
   expected_output: >
     自驾路线规划。
     每天推荐的活动和事件列表。    
-    景区图片用高德工具搜索，要在markdown中显示，而不是显示一个链接。
     每个条目应包括活动名称、位置、简短描述，以及为什么适合该旅行者。
     以及潜在的评价和评分。
     所有内容必须使用简体中文输出。
+
+gaode_picture_task:
+  description: >
+    分析上一个任务的输出的文档，找出景点。
+    并用maps_around_search工具搜索景点，并返回图片。
+    并且在原文的景点下面，插入景点图片，图片要显示在markdown中。
+  expected_output: >
+    输出markdown格式，在原文的景点下面，插入景点图片，图片要显示在markdown中。
+
+
 
 restaurant_scenic_location_scout_task:
   description: >

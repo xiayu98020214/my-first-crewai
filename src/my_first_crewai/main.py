@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # interpolate any tasks and agents information
 
 # 假设任务名
-TASK_NAMES = ["任务1", "任务2", "任务3"]
+TASK_NAMES = ["任务1", "任务2", "任务3","任务4"]
 
 
 
@@ -104,8 +104,11 @@ with gr.Blocks() as demo:
     with gr.Row():
         user_input = gr.Textbox(label="用户输入", value="下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天")
 
-    with gr.Column():
-        task_outputs = [gr.Markdown(value="", label=name, height=300, max_height=300, elem_classes="bordered-box",show_label=True) for name in TASK_NAMES]
+    with gr.Tabs():
+        task_outputs = []
+        for name in TASK_NAMES:
+            with gr.Tab(label=name):
+                task_outputs.append(gr.Markdown(value="", label=name, height=700, max_height=440, elem_classes="bordered-box", show_label=True))
 
     btn = gr.Button("开始任务")
     btn.click(

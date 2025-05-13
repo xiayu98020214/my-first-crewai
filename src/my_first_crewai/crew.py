@@ -39,7 +39,7 @@ class MyFirstCrewai():
                 WeatherTool(),
                 #TrafficTool(),
                 TimeTool(),
-                ImageSearchTool()               
+                #ImageSearchTool()               
             ]
     tools.extend(gaode_tools)
 
@@ -67,7 +67,15 @@ class MyFirstCrewai():
             verbose=True,
             llm=self.llm
         )
-
+    
+    @agent
+    def gaode_picture_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['gaode_picture_agent'], # type: ignore[index]
+            verbose=True,
+            llm=self.llm,
+            tools=self.gaode_tools
+        )
     # To learn more about structured task outputs,
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
@@ -80,6 +88,13 @@ class MyFirstCrewai():
         return Task(
             config=self.tasks_config['personalized_activity_planning_task'], # type: ignore[index]
             agent=self.personalized_activity_planner()
+        )
+    
+    @task
+    def gaode_picture_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['gaode_picture_task'], # type: ignore[index]
+            agent=self.gaode_picture_agent()
         )
     
     @task
@@ -98,6 +113,8 @@ class MyFirstCrewai():
                 ScrapeWebsiteTool()],
             output_file='report.md'
         )
+
+
 
     @crew
     def crew(self) -> Crew:
