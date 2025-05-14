@@ -23,9 +23,10 @@ personalized_activity_planning_task:
 
 gaode_picture_task:
   description: >
-    分析上一个任务的输出的文档，找出景点。
-    并用maps_around_search工具搜索景点，并返回图片。
-    并且在原文的景点下面，插入景点图片，图片要显示在markdown中。
+    从用户输入：{user_input} 
+    中提取旅行目的以上中提取旅行目的地。
+    用maps_around_search工具，搜索旅行目的周边的露营，搜索半径为5000。然后获取相关图片。    
+    在原文的景点下面，插入景点图片，图片要显示在markdown中。
   expected_output: >
     输出markdown格式，在原文的景点下面，插入景点图片，图片要显示在markdown中。
 

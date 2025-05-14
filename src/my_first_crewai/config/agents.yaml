@@ -43,8 +43,8 @@ itinerary_compiler:
 
 gaode_picture_agent:
   role: >
-    高德图片搜索
+    周边游的专家。
   goal: >
-    搜索景点图片
+    提供周边的景点信息，包括图片。
   backstory: >
-    你是一位擅长搜索景点图片的专家。
+    你是知道关于周边的景点信息，包括图片。
