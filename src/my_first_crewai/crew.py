@@ -35,8 +35,8 @@ class MyFirstCrewai():
     )
     gaode_tools:List[BaseTool] = get_mcp_gaode_see_tools()
     tools=[
-                SerperDevTool(),
-                ScrapeWebsiteTool(),
+                # SerperDevTool(),
+                # ScrapeWebsiteTool(),
                 IPLocationTool(),
                 WeatherTool(),
                 #TrafficTool(),
@@ -51,16 +51,11 @@ class MyFirstCrewai():
             config=self.agents_config['personalized_activity_planner'], # type: ignore[index]            
             verbose=True,
             llm=self.llm,
+            allow_delegation=False,
             tools=self.tools,
         )
     
-    @agent
-    def restaurant_scout(self) -> Agent:
-        return Agent(
-            config=self.agents_config['restaurant_scout'], # type: ignore[index]
-            verbose=True,
-            llm=self.llm
-        )
+
     
     @agent
     def itinerary_compiler(self) -> Agent:
@@ -70,14 +65,7 @@ class MyFirstCrewai():
             llm=self.llm
         )
     
-    @agent
-    def gaode_picture_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['gaode_picture_agent'], # type: ignore[index]
-            verbose=True,
-            llm=self.llm,
-            tools=self.gaode_tools
-        )
+  
     # To learn more about structured task outputs,
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
@@ -88,23 +76,12 @@ class MyFirstCrewai():
     @task
     def personalized_activity_planning_task(self) -> Task:
         return Task(
-            config=self.tasks_config['personalized_activity_planning_task'], # type: ignore[index]
+            config=self.tasks_config['personalized_activity_planning_task2'], # type: ignore[index]
             agent=self.personalized_activity_planner()
         )
     
-    @task
-    def gaode_picture_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['gaode_picture_task'], # type: ignore[index]
-            agent=self.gaode_picture_agent()
-        )
     
-    @task
-    def restaurant_scenic_location_scout_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['restaurant_scenic_location_scout_task'], # type: ignore[index]
-            agent=self.restaurant_scout()
-        )
+
 
     @task
     def itinerary_compilation_task(self) -> Task:
