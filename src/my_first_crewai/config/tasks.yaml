@@ -26,9 +26,9 @@ gaode_picture_task:
     从用户输入：{user_input} 
     中提取旅行目的以上中提取旅行目的地。
     用maps_around_search工具，搜索旅行目的周边的露营，搜索半径为5000。然后获取相关图片。    
-    在原文的景点下面，插入景点图片，图片要显示在markdown中。
+    在原文的景点下面，插入景点图片。
   expected_output: >
-    输出markdown格式，在原文的景点下面，插入景点图片，图片要显示在markdown中。
+    在原文的景点下面，插入景点图片，。
 
 
 

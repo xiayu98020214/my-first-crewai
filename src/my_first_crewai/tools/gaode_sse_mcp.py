@@ -31,5 +31,6 @@ def get_mcp_gaode_see_tools() -> List[BaseTool]:
 
 if __name__ == "__main__":
     tools = get_mcp_gaode_see_tools()
+    
     for tool in tools:
         print(tool)
