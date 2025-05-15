@@ -1,10 +1,15 @@
 from dotenv import load_dotenv
 import gradio as gr
 import os
+import sounddevice as sd
+import numpy as np
+import wave
+import io
 from my_first_crewai.image_processor import generate_image_description
 from my_first_crewai.my_flow import GuideCreatorFlow
 from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
 from PIL import Image
+from my_first_crewai.xf_tts import get_xf_tts_ws_wav
 load_dotenv("/home/gpu/work/my_first_crewai/.env")
 
 #my_crew = MyFirstCrewai().crew()
@@ -22,21 +27,31 @@ count = 1
 # 该函数参数为 message（用户输入），history（历史对话）
 def chat_fn(message, history):
     global count
-    # history: List[Tuple[str, str]]，每个元素是 (user, assistant)
-    # 构造大模型需要的 messages 格式
     messages = []
     for user, assistant in history:
         messages.append({"role": "user", "content": user})
         messages.append({"role": "assistant", "content": assistant})
     messages.append({"role": "user", "content": message})
-    # 调用大模型
-    #response = my_crew.kickoff(inputs={'user_input': message})
-    message = f"{message}\n图片描述：{image_description}"
+    
+    if image_description != "":
+        messages = f"{messages}\n图片描述：{image_description}"
     response = my_flow.kickoff(inputs={"input_text": message})
     response = str(response)
-    # response = "xiayu" + str(count)
-    # count += 1
+
+    #response = "你好，我想去松山湖玩，你能和我一起吗？"
+    appid = os.getenv("XF_TTS_APPID")
+    apikey = os.getenv("XF_TTS_APIKEY")
+    apisecret = os.getenv("XF_TTS_APISECRET")
+    wav_bytes = get_xf_tts_ws_wav(response, appid, apikey, apisecret, voice_name="xiaoyan")
+    
+    # 将音频文件保存在项目目录下
+    audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
+    os.makedirs(os.path.dirname(audio_path), exist_ok=True)
+    with open(audio_path, "wb") as f:
+        f.write(wav_bytes)
+
     return response
+
 
 def generate_file(content):
     # 创建一个临时文件
@@ -84,6 +99,20 @@ with gr.Blocks() as demo:
                 fn=chat_fn,
                 examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "我明天计划和朋友一起去类似图中这样的地方露营，帮我推荐一下"],
             )
+            #audio_output = gr.Audio(label="语音回复", type="filepath", autoplay=True)
+            audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
+            audio_output = gr.Audio(label="语音回复", type="filepath", value=audio_path)
+            # def chat_with_audio():
+            #     #response = chat_fn(message, history)
+            #     audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
+            #     return audio_path
+                
+            # chatbot.chatbot.change(
+            #     fn=chat_with_audio,
+                
+            #     outputs=[audio_output]
+            # )
+            
         
         with gr.Column():
             image_input = gr.Image(
@@ -114,6 +143,6 @@ with gr.Blocks() as demo:
 
 
 
+
 if __name__ == "__main__":
-      
-    demo.launch(server_name="0.0.0.0", server_port=8880)
+    demo.launch(server_name="0.0.0.0", server_port=8880, allowed_paths=[os.path.dirname(__file__)])

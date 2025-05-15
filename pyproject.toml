@@ -10,6 +10,7 @@ dependencies = [
     "gradio>=5.29.0",
     "markdown>=3.8",
     "mcp>=1.8.0",
+    "sounddevice>=0.5.1",
     "weasyprint>=65.1",
 ]
 
