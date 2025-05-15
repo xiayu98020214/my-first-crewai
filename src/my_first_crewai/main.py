@@ -1,6 +1,7 @@
+import webbrowser
 from dotenv import load_dotenv
 import gradio as gr
-from my_first_crewai.crew import MyFirstCrewai
+#from my_first_crewai.crew import MyFirstCrewai
 from my_first_crewai.my_flow import GuideCreatorFlow
 load_dotenv("/home/gpu/work/my_first_crewai/.env")
 
@@ -34,13 +35,41 @@ def chat_fn(message, history):
     # count += 1
     return response
 
+def go_to_amap():
+    source = my_flow.state.guide_outline.source_ll
+    destination = my_flow.state.guide_outline.destination_ll
+    print("source:",source)
+    print("destination",destination)
+    url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
+    #url = "https://www.baidu.com/"
+    return f'<a href="{url}" target="_blank">开始导航</a>'
+
+def navigate_to_destination():
+    source = my_flow.state.guide_outline.source_ll
+    destination = my_flow.state.guide_outline.destination_ll
+    print("source:",source)
+    print("destination",destination)
+    url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
+    webbrowser.open(url)
+    return 
 # 创建 ChatInterface
-demo = gr.ChatInterface(
-    fn=chat_fn,
-    title="智能周边游",
-    description="和大模型进行多轮对话。",
-    examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "讲个笑话"]
-)
+with gr.Blocks() as demo:
+    gr.Markdown("# 智能周边游")
+    gr.Markdown("和大模型进行多轮对话。")
+    
+    chatbot = gr.ChatInterface(
+        fn=chat_fn,
+        examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "讲个笑话"]
+    )
+    
+    with gr.Row():
+
+        # navigate_btn = gr.Button("开始导航", variant="primary")
+        # navigate_btn.click(fn=navigate_to_destination)
+
+        gr.HTML(go_to_amap())
+      
+
 
 if __name__ == "__main__":
       
