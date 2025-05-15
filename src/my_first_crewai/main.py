@@ -73,12 +73,12 @@ with gr.Blocks() as demo:
         examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "讲个笑话"],
     )
     
-    with gr.Row():
+    # with gr.Row():
 
         # navigate_btn = gr.Button("开始导航", variant="primary")
         # navigate_btn.click(fn=navigate_to_destination)
 
-        gr.HTML(go_to_amap())
+        # gr.HTML(go_to_amap())
 
     with gr.Blocks():
         generate_btn = gr.Button("生成文件")
