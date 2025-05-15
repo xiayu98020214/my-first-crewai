@@ -6,7 +6,7 @@ from typing import List, Dict
 from dotenv import load_dotenv
 from my_first_crewai.tools.gaode_sse_mcp import get_jw, get_keyword_search
 from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
-from my_first_crewai.tools.travel_tools import WeatherTool
+from my_first_crewai.tools.travel_tools import IPLocationTool, WeatherTool
 from pydantic import BaseModel, Field
 from crewai import LLM
 from crewai.flow.flow import Flow, listen, start
@@ -71,7 +71,7 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
             {"role": "system", "content": "You are a helpful assistant designed to output JSON."},
             {"role": "user", "content": f"""
              用户输入：{state.input_text}
-             请根据用户输入，提取一下信息。输出用json格式。
+             请根据用户输入，提取一下信息。如果没有提取到，用未提及代替。输出用json格式。
              1. 出发地
              2. 目的地
              3. 出发日期
@@ -103,8 +103,14 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
 
         # Parse the JSON response
         outline_dict = json.loads(response.choices[0].message.content)  
+
+        if outline_dict['source'] == '未提及':
+            outline_dict['source'] = "东莞大朗镇"
         outline_dict['source_ll'] = get_jw(outline_dict['source'])
+        if outline_dict['destination'] == '未提及':
+            outline_dict['source'] = "东莞大朗镇"
         outline_dict['destination_ll'] = get_jw(outline_dict['destination'])
+        
         outline_dict['camp_out'] = str(get_keyword_search(keyword='露营',location=outline_dict['destination_ll'],type='110000'))
         outline_dict['food'] =  str(get_keyword_search(keyword='美食',location=outline_dict['destination_ll'],type='050000'))
         self.state.guide_outline = GuideOutline(**outline_dict)
@@ -142,14 +148,11 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=messages,
-            stream=False,
+            
 
         )
         result = response.choices[0].message.content
 
-        # response = llm.call(
-        #     messages=messages
-        # )
 
         print(f"all time during_time:", time.time()-start_time)
         
@@ -170,7 +173,7 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
 
 def kickoff():
     """Run the guide creator flow"""
-    ask = "2025.5.14出发，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天"
+    ask = "2025.5.14出发，我31岁有两个孩子，到东莞松山湖，自驾游2天"
     result = GuideCreatorFlow().kickoff(inputs={"input_text": ask})
     print("result1111111111:",result)
 

@@ -90,18 +90,8 @@ with gr.Blocks() as demo:
             outputs=download_btn
         )
 
-# from crewai import LLM
-# from crewai.utilities.events import EventHandler, LLMStreamChunkEvent
 
-# EventHandler
-# class MyEventHandler(EventHandler):
-#     def on_llm_stream_chunk(self, event: LLMStreamChunkEvent):
-#         # Process each chunk as it arrives
-#         print(f"Received chunk: {event.chunk}")
 
-# # Register the event handler
-# from crewai.utilities.events import crewai_event_bus
-# crewai_event_bus.register_handler(MyEventHandler())
 if __name__ == "__main__":
       
     demo.launch(server_name="0.0.0.0", server_port=8880)

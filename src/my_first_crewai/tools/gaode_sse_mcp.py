@@ -1,5 +1,6 @@
 import json
 import os
+from dotenv import load_dotenv
 import httpx
 from crewai_tools import MCPServerAdapter
 from crewai.agents.agent_builder.base_agent import BaseTool
@@ -32,7 +33,9 @@ def get_mcp_gaode_see_tools() -> List[BaseTool]:
     
     return tools
 
-key = "702737fc38cd2727a2893002c58c4e29"
+load_dotenv("/home/gpu/work/my_first_crewai/.env")
+
+key = os.getenv("AMAP_KEY")
 
 # 获取经纬度
 def get_jw(address):
@@ -56,7 +59,6 @@ def get_summary_search(response):
     for one in response['pois']:
         summary = {}
         summary['name']=one['name']
-        summary['location'] = one['location']
         summary['photos'] = []
         if one.get('photos',[]) != []:
             for one_pic in  one["photos"]:
