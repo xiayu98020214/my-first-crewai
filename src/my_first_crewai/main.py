@@ -36,23 +36,23 @@ def chat_fn(message, history):
     # count += 1
     return response
 
-def go_to_amap():
-    source = my_flow.state.guide_outline.source_ll
-    destination = my_flow.state.guide_outline.destination_ll
-    print("source:",source)
-    print("destination",destination)
-    url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
-    #url = "https://www.baidu.com/"
-    return f'<a href="{url}" target="_blank">开始导航</a>'
+# def go_to_amap():
+#     source = my_flow.state.guide_outline.source_ll
+#     destination = my_flow.state.guide_outline.destination_ll
+#     print("source:",source)
+#     print("destination",destination)
+#     url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
+#     #url = "https://www.baidu.com/"
+#     return f'<a href="{url}" target="_blank">开始导航</a>'
 
-def navigate_to_destination():
-    source = my_flow.state.guide_outline.source_ll
-    destination = my_flow.state.guide_outline.destination_ll
-    print("source:",source)
-    print("destination",destination)
-    url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
-    webbrowser.open(url)
-    return 
+# def navigate_to_destination():
+#     source = my_flow.state.guide_outline.source_ll
+#     destination = my_flow.state.guide_outline.destination_ll
+#     print("source:",source)
+#     print("destination",destination)
+#     url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
+#     webbrowser.open(url)
+#     return 
 
 def generate_file(content):
     # 创建一个临时文件
