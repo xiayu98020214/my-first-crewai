@@ -39,7 +39,7 @@ class GuideCreatorState(BaseModel):
     guide_outline: GuideOutline = Field(default=GuideOutline(), description="游记大纲")
 
 
-
+start_time = 0
 class GuideCreatorFlow(Flow[GuideCreatorState]):
     """Flow for creating a comprehensive guide on any topic"""
 
@@ -54,7 +54,7 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
         """Create a structured outline for the guide using a direct LLM call"""
         print("Creating guide outline...")
 
-
+        global start_time
 
         start_time = time.time()
         # Create the messages for the outline
@@ -105,7 +105,6 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
 
     @listen(create_guide_outline)
     def write_and_compile_guide(self, outline):
-        start_time = time.time()
         # Create the messages for the outline
         messages = [
             {"role": "system", "content": "你是一名活动规划师，研究并找到目的地有趣的活动，包括适合旅行者兴趣和年龄组的活动和事件。"},
@@ -141,7 +140,7 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
 
 
 
-        print(f"crew during_time:", time.time()-start_time)
+        print(f"all time during_time:", time.time()-start_time)
 
         return result
 

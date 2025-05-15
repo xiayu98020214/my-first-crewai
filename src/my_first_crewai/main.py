@@ -4,8 +4,8 @@ from my_first_crewai.crew import MyFirstCrewai
 from my_first_crewai.my_flow import GuideCreatorFlow
 load_dotenv("/home/gpu/work/my_first_crewai/.env")
 
-my_crew = MyFirstCrewai().crew()
-
+#my_crew = MyFirstCrewai().crew()
+my_flow = GuideCreatorFlow()
 # 假设你有一个大模型的回复函数
 def generate_response(messages):
     # messages: List[dict], 例如 [{"role": "user", "content": "你好"}]
@@ -28,7 +28,7 @@ def chat_fn(message, history):
     messages.append({"role": "user", "content": message})
     # 调用大模型
     #response = my_crew.kickoff(inputs={'user_input': message})
-    response = GuideCreatorFlow().kickoff(inputs={"input_text": message})
+    response = my_flow.kickoff(inputs={"input_text": message})
     response = str(response)
     # response = "xiayu" + str(count)
     # count += 1
