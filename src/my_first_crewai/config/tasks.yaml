@@ -63,6 +63,7 @@ personalized_activity_planning_task4:
     - 目的地：{destination}
     - 旅行时长：{during}
     - 出发时间：{start_date}
+    - 天气：{weather}
     - 景点：{camp_out}
     - 美食：{food}
     注意：所有输出必须使用简体中文。

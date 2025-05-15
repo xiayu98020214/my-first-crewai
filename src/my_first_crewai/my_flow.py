@@ -4,8 +4,8 @@ import os
 import time
 from typing import List, Dict
 from dotenv import load_dotenv
-from my_first_crewai.crew import MyFirstCrewai
 from my_first_crewai.tools.gaode_sse_mcp import get_jw, get_keyword_search
+from my_first_crewai.tools.travel_tools import WeatherTool
 from pydantic import BaseModel, Field
 from crewai import LLM
 from crewai.flow.flow import Flow, listen, start
@@ -32,7 +32,7 @@ class GuideOutline(BaseModel):
     during: str = Field(default="",description="天数")
     camp_out: str = Field(default="",description="露营地")
     food: str = Field(default="",description="美食")
-    # weather: str = Field(default="",description="天气")
+    weather: str = Field(default="",description="天气")
 
 class GuideCreatorState(BaseModel):
     input_text: str = Field(default="", description="用户输入")
@@ -99,23 +99,48 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
         outline_dict['camp_out'] = str(get_keyword_search(keyword='露营',location=outline_dict['destination_ll'],type='110000'))
         outline_dict['food'] =  str(get_keyword_search(keyword='美食',location=outline_dict['destination_ll'],type='050000'))
         self.state.guide_outline = GuideOutline(**outline_dict)
+   #     outline_dict['weather'] = WeatherTool()._run(outline_dict['source'])
         print(f"work flow during_time:", time.time()-start_time)
         return self.state.guide_outline
 
     @listen(create_guide_outline)
     def write_and_compile_guide(self, outline):
         start_time = time.time()
+        # Create the messages for the outline
+        messages = [
+            {"role": "system", "content": "你是一名活动规划师，研究并找到目的地有趣的活动，包括适合旅行者兴趣和年龄组的活动和事件。"},
+            {"role": "user", "content": f"""
+重点关注适合露营者兴趣和年龄组以及同行人员的活动和事件。
+用户输入{self.state.input_text}：
+- 出发地：{outline.source}
+- 目的地：{outline.destination}
+- 旅行时长：{outline.during}
+- 出发时间：{outline.start_date}
+- 景点：{outline.camp_out}
+- 美食：{outline.food}
 
-        result = MyFirstCrewai().crew().kickoff(inputs={
-            "input_text": self.state.input_text,
-            "source": outline.source,
-            "destination": outline.destination,
-            "destination_ll": outline.destination_ll,
-            "start_date": outline.start_date,            
-            "during": outline.during,
-            "camp_out":outline.camp_out,
-            "food": outline.food
-        })
+重点关注适合露营者兴趣和年龄组以及同行人员的活动和事件。
+输出：
+    每天推荐的活动和事件列表。    
+    每个条目应包括活动名称、位置、图片、简短描述，以及为什么适合该旅行者。    
+    所有内容必须使用简体中文输出。
+
+
+注意：输出以markdown形式输出。
+        """}
+
+        ]
+
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=messages,
+            stream=False,
+
+        )
+        result = response.choices[0].message.content
+
+
+
         print(f"crew during_time:", time.time()-start_time)
 
         return result

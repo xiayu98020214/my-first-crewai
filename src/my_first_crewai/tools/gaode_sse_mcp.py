@@ -64,6 +64,9 @@ def get_summary_search(response):
         summary_list.append(summary)
     return summary_list
 
+
+
+
 if __name__ == "__main__":
     location = get_jw("东莞松山湖")
     get_keyword_search(keyword='美食',location=location,type='050000')
