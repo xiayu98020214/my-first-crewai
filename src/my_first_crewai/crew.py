@@ -57,13 +57,6 @@ class MyFirstCrewai():
     
 
     
-    @agent
-    def itinerary_compiler(self) -> Agent:
-        return Agent(
-            config=self.agents_config['itinerary_compiler'], # type: ignore[index]
-            verbose=True,
-            llm=self.llm
-        )
     
   
     # To learn more about structured task outputs,
@@ -76,22 +69,14 @@ class MyFirstCrewai():
     @task
     def personalized_activity_planning_task(self) -> Task:
         return Task(
-            config=self.tasks_config['personalized_activity_planning_task2'], # type: ignore[index]
+            config=self.tasks_config['personalized_activity_planning_task4'], # type: ignore[index]
             agent=self.personalized_activity_planner()
         )
     
     
 
 
-    @task
-    def itinerary_compilation_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['itinerary_compilation_task'], # type: ignore[index]
-            agent=self.itinerary_compiler(),
-            tools=[SerperDevTool(),
-                ScrapeWebsiteTool()],
-            output_file='report.md'
-        )
+
 
 
 

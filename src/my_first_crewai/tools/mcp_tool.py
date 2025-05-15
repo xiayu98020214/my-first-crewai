@@ -1,8 +1,11 @@
+import json
 import os
 from crewai_tools import MCPServerAdapter
 from mcp import StdioServerParameters
 from crewai.agents.agent_builder.base_agent import BaseTool
 from typing import List, Dict, Any
+
+import requests
  
 # MCP 配置文件
 config: Dict[str, Dict[str, Any]] = {
@@ -15,7 +18,7 @@ config: Dict[str, Dict[str, Any]] = {
       }
     }
 }
- 
+
 def get_mcp_gaode_tools() -> List[BaseTool]:
         """
         根据配置加载所有 MCP 工具并转换为 CrewAI 兼容的 BaseTool
@@ -47,6 +50,46 @@ def get_mcp_gaode_tools() -> List[BaseTool]:
         #         result_tools.append(tool)
         return tools
 
+all_gaode_tools = get_mcp_gaode_tools()
+
+def get_maps_geo_func():
+    for tool in all_gaode_tools:
+      if tool.name == "maps_geo":
+          return tool
+           #result = tool.run({"city":"东莞"})
+          
+#gaode_maps_geo_tool = get_maps_geo_func()
+
+
+def get_maps_around_search_func():
+    for tool in all_gaode_tools:
+      if tool.name == "maps_around_search":
+          return tool
+
+#gaode_maps_around_search_tool = get_maps_around_search_func()
+
+
+
+
+
 if __name__ == "__main__":
-    tools = get_mcp_gaode_tools()
-    print(tools)
+    # tools = get_mcp_gaode_tools()
+    # for tool in tools:
+    #   if tool.name == "maps_geo":
+    #        result = tool.run({"city":"东莞"})
+    #        print(result)
+        
+    # result = gaode_maps_geo_tool.run({"city":"东莞"})   
+    # print(gaode_maps_around_search_tool.description)
+    # print(gaode_maps_around_search_tool.args_schema)
+   # result2 = gaode_maps_around_search_tool.run({"keywords": "餐厅", "location": "113.889699,22.934925","radius": "1000"})
+#     result2 = gaode_maps_around_search_tool.run({
+#   "keywords": "健身房",
+#   "location": "116.4738,39.9088",  
+#   "radius": "1000"
+# })
+
+    # print(result2)
+
+
+  pass

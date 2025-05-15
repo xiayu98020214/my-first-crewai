@@ -39,6 +39,37 @@ personalized_activity_planning_task2:
     每个条目应包括活动名称、位置、图片、简短描述，以及为什么适合该旅行者。
     所有内容必须使用简体中文输出。
 
+personalized_activity_planning_task3:
+  description: >
+    重点关注适合露营者兴趣和年龄组以及同行人员的活动和事件。
+    用户输入{input_text}：
+    - 出发地：{source}
+    - 目的地：{destination}
+    - 目的地经纬度：{destination_ll}
+    - 旅行时长：{during}
+    - 出发时间：{start_date}
+    用maps_around_search工具，搜索周边目的地经纬度的露营，美食，搜索半径为5000。    
+    注意：所有输出必须使用简体中文。
+  expected_output: >    
+    每天推荐的活动和事件列表。    
+    每个条目应包括活动名称、位置、图片、简短描述，以及为什么适合该旅行者。
+    所有内容必须使用简体中文输出。
+
+personalized_activity_planning_task4:
+  description: >
+    重点关注适合露营者兴趣和年龄组以及同行人员的活动和事件。
+    用户输入{input_text}：
+    - 出发地：{source}
+    - 目的地：{destination}
+    - 旅行时长：{during}
+    - 出发时间：{start_date}
+    - 景点：{camp_out}
+    - 美食：{food}
+    注意：所有输出必须使用简体中文。
+  expected_output: >    
+    每天推荐的活动和事件列表。    
+    每个条目应包括活动名称、位置、图片、简短描述，以及为什么适合该旅行者。    
+    所有内容必须使用简体中文输出。
 
 gaode_picture_task:
   description: >

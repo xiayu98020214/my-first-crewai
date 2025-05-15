@@ -1,8 +1,11 @@
+import json
 import os
 import httpx
 from crewai_tools import MCPServerAdapter
 from crewai.agents.agent_builder.base_agent import BaseTool
 from typing import List, Dict, Any
+
+import requests
  
 # MCP 配置文件
 config: Dict[str, Dict[str, Any]] = {
@@ -29,7 +32,43 @@ def get_mcp_gaode_see_tools() -> List[BaseTool]:
     
     return tools
 
+key = "702737fc38cd2727a2893002c58c4e29"
+
+# 获取经纬度
+def get_jw(address):
+    response = requests.get(f'https://restapi.amap.com/v3/geocode/geo?address={address}&key={key}')
+    response = json.loads(response.text)
+    return response['geocodes'][0]['location']
+
+
+def get_keyword_search(keyword,location,type,radius=5000):
+    #response = requests.get(f"https://restapi.amap.com/v3/place/around?key={key}&location={location}&keywords={keyword}&radius={radius}&types=110000")
+    
+    response = requests.get(f"https://restapi.amap.com/v5/place/around?key={key}&location={location}&keywords={keyword}&radius={radius}&types={type}&show_fields=photos&page_size=20")
+
+
+    response = json.loads(response.text)
+    response = get_summary_search(response)
+    return response
+
+def get_summary_search(response):
+    summary_list = []
+    for one in response['pois']:
+        summary = {}
+        summary['name']=one['name']
+        summary['location'] = one['location']
+        summary['photos'] = []
+        if one.get('photos',[]) != []:
+            for one_pic in  one["photos"]:
+                summary['photos'].append(one_pic["url"])
+        summary_list.append(summary)
+    return summary_list
+
 if __name__ == "__main__":
+    location = get_jw("东莞松山湖")
+    get_keyword_search(keyword='美食',location=location,type='050000')
+    get_keyword_search("露营",location,radius=50000,type='110000')
+    get_jw("东莞")
     tools = get_mcp_gaode_see_tools()
     
     for tool in tools:
