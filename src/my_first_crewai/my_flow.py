@@ -160,7 +160,7 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
         url = get_amap_url(self.state)
         content = f"[高德导航]({url})"
         result = result + "\n" + content
-
+        result = result.replace("```markdown", "").replace("```", "")
         file_path2 = r"/home/gpu/work/my_first_crewai/output/report.txt"  # 替换为实际的文件路径      
 
         

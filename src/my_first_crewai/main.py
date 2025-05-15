@@ -1,9 +1,6 @@
-import webbrowser
 from dotenv import load_dotenv
 import gradio as gr
 import os
-from datetime import datetime
-#from my_first_crewai.crew import MyFirstCrewai
 from my_first_crewai.image_processor import generate_image_description
 from my_first_crewai.my_flow import GuideCreatorFlow
 from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
@@ -85,7 +82,7 @@ with gr.Blocks() as demo:
         with gr.Column():
             chatbot = gr.ChatInterface(
                 fn=chat_fn,
-                examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "讲个笑话"],
+                examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "我明天计划和朋友一起去类似图中这样的地方露营，帮我推荐一下"],
             )
         
         with gr.Column():
