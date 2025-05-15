@@ -1,9 +1,13 @@
 import webbrowser
 from dotenv import load_dotenv
 import gradio as gr
+import os
+from datetime import datetime
 #from my_first_crewai.crew import MyFirstCrewai
+from my_first_crewai.image_processor import generate_image_description
 from my_first_crewai.my_flow import GuideCreatorFlow
 from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
+from PIL import Image
 load_dotenv("/home/gpu/work/my_first_crewai/.env")
 
 #my_crew = MyFirstCrewai().crew()
@@ -30,29 +34,12 @@ def chat_fn(message, history):
     messages.append({"role": "user", "content": message})
     # 调用大模型
     #response = my_crew.kickoff(inputs={'user_input': message})
+    message = f"{message}\n图片描述：{image_description}"
     response = my_flow.kickoff(inputs={"input_text": message})
     response = str(response)
     # response = "xiayu" + str(count)
     # count += 1
     return response
-
-# def go_to_amap():
-#     source = my_flow.state.guide_outline.source_ll
-#     destination = my_flow.state.guide_outline.destination_ll
-#     print("source:",source)
-#     print("destination",destination)
-#     url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
-#     #url = "https://www.baidu.com/"
-#     return f'<a href="{url}" target="_blank">开始导航</a>'
-
-# def navigate_to_destination():
-#     source = my_flow.state.guide_outline.source_ll
-#     destination = my_flow.state.guide_outline.destination_ll
-#     print("source:",source)
-#     print("destination",destination)
-#     url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
-#     webbrowser.open(url)
-#     return 
 
 def generate_file(content):
     # 创建一个临时文件
@@ -63,27 +50,65 @@ def generate_file(content):
     gr.Warning("保存文件结束")
 
     return output_file
+
+image_description = ""
+def process_image(image):
+    global image_description
+    # if image is None:
+    #     return None, "请先上传图片"
+    # try:
+    #     # 创建保存图片的目录
+    #     save_dir = "/home/gpu/work/my_first_crewai/output/images"
+    #     os.makedirs(save_dir, exist_ok=True)
+        
+    #     # 生成唯一的文件名（使用时间戳）
+    #     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    #     filename = f"image_{timestamp}.png"
+    #     save_path = os.path.join(save_dir, filename)
+        
+    #     # 保存图片
+    #     with open(save_path, "wb") as f:
+    #         f.write(open(image, "rb").read())
+    image = Image.open(image)
+    image_description = generate_image_description(image)
+
+    print("image_description:",image_description)
+    return image, f"图片描述：{image_description}"
+
+
 # 创建 ChatInterface
 with gr.Blocks() as demo:
     gr.Markdown("# 智能周边游")
     gr.Markdown("和大模型进行多轮对话。")
     
-    chatbot = gr.ChatInterface(
-        fn=chat_fn,
-        examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "讲个笑话"],
-    )
+    with gr.Row():
+        with gr.Column():
+            chatbot = gr.ChatInterface(
+                fn=chat_fn,
+                examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "讲个笑话"],
+            )
+        
+        with gr.Column():
+            image_input = gr.Image(
+                label="上传图片",
+                type="filepath",
+                image_mode="RGB",
+                sources=["upload", "clipboard"],
+                height=300,
+                width=300,
+                format="png"
+            )
+            image_output = gr.Image(label="预览图片", height=300, width=300)
+            
+            image_input.change(
+                fn=process_image,
+                inputs=image_input,
+                outputs=[image_output, gr.Textbox(label="处理状态")]
+            )
     
-    # with gr.Row():
-
-        # navigate_btn = gr.Button("开始导航", variant="primary")
-        # navigate_btn.click(fn=navigate_to_destination)
-
-        # gr.HTML(go_to_amap())
-
     with gr.Blocks():
-        generate_btn = gr.Button("生成文件")
-        download_btn = gr.DownloadButton(label="下载文件")
-
+        generate_btn = gr.Button("生成报告文件")
+        download_btn = gr.DownloadButton(label="下载报告文件")
         
         generate_btn.click(
             generate_file,

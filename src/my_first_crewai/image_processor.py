@@ -79,3 +79,18 @@ def process_image_and_text(image, message, my_flow):
     response = my_flow.kickoff(inputs={"input_text": combined_input})
     response = str(response)
     return response
+
+# 使用示例
+if __name__ == "__main__":
+    from PIL import Image
+    import os
+    
+    # 设置 API 密钥
+    os.environ["DASHSCOPE_API_KEY"] = "your_api_key_here"  # 替换为你的实际 API 密钥
+    
+    # 加载图片
+    image = Image.open("path_to_your_image.jpg")  # 替换为你的图片路径
+    
+    # 调用函数生成图片描述
+    description = generate_image_description(image)
+    print("生成的图片描述:", description)
