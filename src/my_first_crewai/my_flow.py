@@ -5,6 +5,7 @@ import time
 from typing import List, Dict
 from dotenv import load_dotenv
 from my_first_crewai.tools.gaode_sse_mcp import get_jw, get_keyword_search
+from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
 from my_first_crewai.tools.travel_tools import WeatherTool
 from pydantic import BaseModel, Field
 from crewai import LLM
@@ -16,6 +17,13 @@ key = os.getenv("DEEPSEEK_API_KEY")
 client = OpenAI(
     api_key=key,
     base_url="https://api.deepseek.com",
+)
+
+llm = LLM(
+    model="deepseek/deepseek-chat",
+    stream=True,
+    temperature=0.9,
+    #api_base="https://api.deepseek.com"    
 )
 
 
@@ -37,6 +45,7 @@ class GuideOutline(BaseModel):
 class GuideCreatorState(BaseModel):
     input_text: str = Field(default="", description="用户输入")
     guide_outline: GuideOutline = Field(default=GuideOutline(), description="游记大纲")
+    result: str  = Field(default="", description="输出md文档")
 
 
 start_time = 0
@@ -138,10 +147,25 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
         )
         result = response.choices[0].message.content
 
-
+        # response = llm.call(
+        #     messages=messages
+        # )
 
         print(f"all time during_time:", time.time()-start_time)
+        
 
+        url = get_amap_url(self.state)
+        content = f"[高德导航]({url})"
+        result = result + "\n" + content
+
+        file_path2 = r"/home/gpu/work/my_first_crewai/output/report.txt"  # 替换为实际的文件路径      
+
+        
+        with open(file_path2, 'w', encoding='utf-8') as file:
+            file.write(result)     
+        #markdown_to_pdf(result, file_path)
+
+        self.state.result = result
         return result
 
 def kickoff():
@@ -156,6 +180,14 @@ def plot():
     flow = GuideCreatorFlow()
     flow.plot("guide_creator_flow")
     print("Flow visualization saved to guide_creator_flow.html")
+
+def get_amap_url(state):
+    source = state.guide_outline.source_ll
+    destination = state.guide_outline.destination_ll
+    print("source:",source)
+    print("destination",destination)
+    url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
+    return url
 
 if __name__ == "__main__":
     kickoff()

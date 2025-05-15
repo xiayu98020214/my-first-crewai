@@ -8,7 +8,9 @@ dependencies = [
     "crewai-tools[mcp]>=0.44.0",
     "crewai[tools]>=0.119.0,<1.0.0",
     "gradio>=5.29.0",
+    "markdown>=3.8",
     "mcp>=1.8.0",
+    "weasyprint>=65.1",
 ]
 
 [project.scripts]

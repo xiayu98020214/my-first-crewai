@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import gradio as gr
 #from my_first_crewai.crew import MyFirstCrewai
 from my_first_crewai.my_flow import GuideCreatorFlow
+from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
 load_dotenv("/home/gpu/work/my_first_crewai/.env")
 
 #my_crew = MyFirstCrewai().crew()
@@ -52,6 +53,16 @@ def navigate_to_destination():
     url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
     webbrowser.open(url)
     return 
+
+def generate_file(content):
+    # 创建一个临时文件
+    gr.Warning("开始保存文件")
+    input_file = r"/home/gpu/work/my_first_crewai/output/report.txt"
+    output_file = r"/home/gpu/work/my_first_crewai/output/report.pdf"
+    markdown_to_pdf(input_file, output_file)
+    gr.Warning("保存文件结束")
+
+    return output_file
 # 创建 ChatInterface
 with gr.Blocks() as demo:
     gr.Markdown("# 智能周边游")
@@ -59,7 +70,7 @@ with gr.Blocks() as demo:
     
     chatbot = gr.ChatInterface(
         fn=chat_fn,
-        examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "讲个笑话"]
+        examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "讲个笑话"],
     )
     
     with gr.Row():
@@ -68,9 +79,29 @@ with gr.Blocks() as demo:
         # navigate_btn.click(fn=navigate_to_destination)
 
         gr.HTML(go_to_amap())
-      
 
+    with gr.Blocks():
+        generate_btn = gr.Button("生成文件")
+        download_btn = gr.DownloadButton(label="下载文件")
 
+        
+        generate_btn.click(
+            generate_file,
+            outputs=download_btn
+        )
+
+# from crewai import LLM
+# from crewai.utilities.events import EventHandler, LLMStreamChunkEvent
+
+# EventHandler
+# class MyEventHandler(EventHandler):
+#     def on_llm_stream_chunk(self, event: LLMStreamChunkEvent):
+#         # Process each chunk as it arrives
+#         print(f"Received chunk: {event.chunk}")
+
+# # Register the event handler
+# from crewai.utilities.events import crewai_event_bus
+# crewai_event_bus.register_handler(MyEventHandler())
 if __name__ == "__main__":
       
     demo.launch(server_name="0.0.0.0", server_port=8880)
