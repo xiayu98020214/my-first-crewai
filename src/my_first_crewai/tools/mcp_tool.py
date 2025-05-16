@@ -1,20 +1,25 @@
 import json
 import os
 from crewai_tools import MCPServerAdapter
+from dotenv import load_dotenv
 from mcp import StdioServerParameters
 from crewai.agents.agent_builder.base_agent import BaseTool
 from typing import List, Dict, Any
 
 import requests
- 
+from my_first_crewai.const import ENV_FILE
+
+load_dotenv(ENV_FILE)
+key = os.getenv("AMAP_KEY")
+
 # MCP 配置文件
 config: Dict[str, Dict[str, Any]] = {
     "amap-maps": {
       "command": "npx",
       "args": ["-y", "@amap/amap-maps-mcp-server"],
       "env": {
-        "AMAP_MAPS_API_KEY": "702737fc38cd2727a2893002c58c4e29",
-        "AMAP_API_KEY": "702737fc38cd2727a2893002c58c4e29"
+        "AMAP_MAPS_API_KEY": key,
+        "AMAP_API_KEY": key
       }
     }
 }

@@ -6,13 +6,15 @@ import httpx
 from crewai_tools import MCPServerAdapter
 from crewai.agents.agent_builder.base_agent import BaseTool
 from typing import List, Dict, Any
-
+from my_first_crewai.const import ENV_FILE
 import requests
- 
+
+load_dotenv(ENV_FILE)
+key = os.getenv("AMAP_KEY")
 # MCP 配置文件
 config: Dict[str, Dict[str, Any]] = {
     "amap-maps": {
-        "url": "https://mcp.amap.com/sse?key=702737fc38cd2727a2893002c58c4e29",  # SSE 服务器地址
+        "url": f"https://mcp.amap.com/sse?key={key}",  # SSE 服务器地址
         "headers": {
             "Content-Type": "application/json",
             "Accept": "text/event-stream"
@@ -28,15 +30,15 @@ def get_mcp_gaode_see_tools() -> List[BaseTool]:
     """
 
         # 创建MCPServerAdapter对象
-    adapter = MCPServerAdapter({"url": "https://mcp.amap.com/sse?key=702737fc38cd2727a2893002c58c4e29"})
+    adapter = MCPServerAdapter({"url": f"https://mcp.amap.com/sse?key={key}"})
     # 将adapter中的tools添加到tools列表中
     tools = adapter.tools
     
     return tools
 
-load_dotenv("/home/gpu/work/my_first_crewai/.env")
 
-key = os.getenv("AMAP_KEY")
+
+
 
 # 获取经纬度
 def get_jw(address):
