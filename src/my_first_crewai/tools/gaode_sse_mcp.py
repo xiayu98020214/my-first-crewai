@@ -1,5 +1,6 @@
 import json
 import os
+import random
 from dotenv import load_dotenv
 import httpx
 from crewai_tools import MCPServerAdapter
@@ -44,10 +45,10 @@ def get_jw(address):
     return response['geocodes'][0]['location']
 
 
-def get_keyword_search(keyword,location,type,radius=20000):
+def get_keyword_search(keyword,location,type,radius=40000):
     #response = requests.get(f"https://restapi.amap.com/v3/place/around?key={key}&location={location}&keywords={keyword}&radius={radius}&types=110000")
     
-    response = requests.get(f"https://restapi.amap.com/v5/place/around?key={key}&location={location}&keywords={keyword}&radius={radius}&types={type}&show_fields=photos&page_size=20")
+    response = requests.get(f"https://restapi.amap.com/v5/place/around?key={key}&location={location}&keywords={keyword}&radius={radius}&types={type}&show_fields=photos&page_size=60")
 
 
     response = json.loads(response.text)
@@ -56,7 +57,9 @@ def get_keyword_search(keyword,location,type,radius=20000):
 
 def get_summary_search(response):
     summary_list = []
-    for one in response['pois']:
+    random.shuffle(response['pois'])
+    spot_list = response['pois'][:5]
+    for one in spot_list:
         summary = {}
         summary['name']=one['name']
         summary['photos'] = []

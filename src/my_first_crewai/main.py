@@ -122,7 +122,7 @@ with gr.Blocks(css="""
         with gr.Column():
             chatbot = gr.ChatInterface(
                 fn=chat_fn,
-                examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天",  "我明天计划和朋友一起去类似图中这样的地方露营，帮我推荐一下"],
+                examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "我想去深圳类似图片中的场景中露营，帮我推荐一下", "我明天计划和朋友一起去类似图中这样的地方露营，帮我推荐一下"],
             )
             #audio_output = gr.Audio(label="语音回复", type="filepath", autoplay=True)
 
