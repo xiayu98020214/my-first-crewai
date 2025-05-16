@@ -116,6 +116,8 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
         self.state.guide_outline = GuideOutline(**outline_dict)
    #     outline_dict['weather'] = WeatherTool()._run(outline_dict['source'])
         print(f"work flow during_time:", time.time()-start_time)
+        print("camp_out:", outline_dict['camp_out'])
+        print("food:", outline_dict['food'])
         return self.state.guide_outline
 
     @listen(create_guide_outline)

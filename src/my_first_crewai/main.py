@@ -89,14 +89,40 @@ def process_image(image):
 
 
 # 创建 ChatInterface
-with gr.Blocks() as demo:
-    gr.Markdown("# 智能周边游")
+with gr.Blocks(css="""
+.logo-col {
+    align-items: flex-start !important;
+}
+.logo-left img {
+    margin-left: 0 !important;
+    display: block;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+.logo-left [class*="image-toolbar"] {
+    display: none !important;
+}
+""") as demo:
+    # Add logo at the top
+    with gr.Row():
+        with gr.Column(scale=0.2, elem_classes="logo-col"):
+            gr.Image(
+                r"/home/gpu/work/my_first_crewai/src/my_first_crewai/logo.jpg",
+                show_label=False,
+                width=100,
+                elem_classes="logo-left"
+            )
+        with gr.Column():
+            gr.Markdown("# 佰鹿")
+            gr.Markdown("### 您身边的露营推荐百晓生")
     
     with gr.Row():
         with gr.Column():
             chatbot = gr.ChatInterface(
                 fn=chat_fn,
-                examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "我明天计划和朋友一起去类似图中这样的地方露营，帮我推荐一下"],
+                examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天",  "我明天计划和朋友一起去类似图中这样的地方露营，帮我推荐一下"],
             )
             #audio_output = gr.Audio(label="语音回复", type="filepath", autoplay=True)
 
