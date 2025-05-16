@@ -1,89 +1,43 @@
 from dotenv import load_dotenv
 import gradio as gr
 import os
-from my_first_crewai.tools.call_test_1 import call_wave
-from my_first_crewai.tools.call_test_2 import call_wave2
-import sounddevice as sd
-import numpy as np
-import wave
-import io
+from my_first_crewai.my_flow2 import kickoff3
 from my_first_crewai.image_processor import generate_image_description
 from my_first_crewai.my_flow import GuideCreatorFlow, summary_result
 from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
 from PIL import Image
 from my_first_crewai.xf_tts import get_xf_tts_ws_wav
-import threading
-load_dotenv("/home/gpu/work/my_first_crewai/.env")
-
-#my_crew = MyFirstCrewai().crew()
-my_flow = GuideCreatorFlow()
-# 假设你有一个大模型的回复函数
-def generate_response(messages):
-    # messages: List[dict], 例如 [{"role": "user", "content": "你好"}]
-    # 这里用简单回显模拟，实际应调用你的大模型
-    last_user_message = messages[-1]["content"]
-    return f"你说：{last_user_message}"
+from my_first_crewai.const import ENV_FILE, REPORT_PDF_FILE, REPORT_TXT_FILE
+load_dotenv(ENV_FILE)
 
 
-count = 1
+
 # Gradio 的 ChatInterface 只需传入一个函数
 # 该函数参数为 message（用户输入），history（历史对话）
 def chat_fn(message, history):
-    global count
-    messages = []
-    for user, assistant in history:
-        messages.append({"role": "user", "content": user})
-        messages.append({"role": "assistant", "content": assistant})
-    messages.append({"role": "user", "content": message})
+    # messages = []
+    # for user, assistant in history:
+    #     messages.append({"role": "user", "content": user})
+    #     messages.append({"role": "assistant", "content": assistant})
+    # messages.append({"role": "user", "content": message})
     
     if image_description != "":
-        messages = f"{messages}\n图片描述：{image_description}"
-    response = my_flow.kickoff(inputs={"input_text": message})
-    response = str(response)
-    with open(r"/home/gpu/work/my_first_crewai/output/report.txt", "w", encoding="utf-8") as file:
-        file.write(response)
-    #response = "你好，我想去松山湖玩，你能和我一起吗？"
-    threading.Thread(target=save_summary_wav2, args=(response,), daemon=True).start()
+        message = f"{message}\n图片描述：{image_description}"
 
-    return response
+    yield from kickoff3(message)
 
-# def save_summary_wav(response):
-#     gr.Warning("开始生成音频文件")
-#     summary = summary_result(response)
-#     with open(r"/home/gpu/work/my_first_crewai/output/summary.txt", "w", encoding="utf-8") as file:
-#         file.write(summary)
-#     appid = os.getenv("XF_TTS_APPID")
-#     apikey = os.getenv("XF_TTS_APIKEY")
-#     apisecret = os.getenv("XF_TTS_APISECRET")
-#     wav_bytes = get_xf_tts_ws_wav(summary, appid, apikey, apisecret, voice_name="xiaoyan")
-    
-#     # 将音频文件保存在项目目录下    
-#     audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
-#     os.makedirs(os.path.dirname(audio_path), exist_ok=True)
-#     with open(audio_path, "wb") as f:
-#         f.write(wav_bytes)
-#     gr.Warning("已经生成音频文件成功")
-
-def save_summary_wav2(response):
-    gr.Warning("开始生成音频文件")
-
-    summary = summary_result(response)
-    with open(r"/home/gpu/work/my_first_crewai/output/summary.txt", "w", encoding="utf-8") as file:
-        file.write(summary)
-    audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
-
-    call_wave2(summary,audio_path)
-    # 将音频文件保存在项目目录下    
+  
 
 
-    gr.Warning("已经生成音频文件成功")
+
+
 
     
 def generate_file(content):
     # 创建一个临时文件
     gr.Warning("开始保存文件")
-    input_file = r"/home/gpu/work/my_first_crewai/output/report.txt"
-    output_file = r"/home/gpu/work/my_first_crewai/output/report.pdf"
+    input_file = REPORT_TXT_FILE
+    output_file = REPORT_PDF_FILE
     markdown_to_pdf(input_file, output_file)
     gr.Warning("保存文件结束")
 
@@ -92,21 +46,7 @@ def generate_file(content):
 image_description = ""
 def process_image(image):
     global image_description
-    # if image is None:
-    #     return None, "请先上传图片"
-    # try:
-    #     # 创建保存图片的目录
-    #     save_dir = "/home/gpu/work/my_first_crewai/output/images"
-    #     os.makedirs(save_dir, exist_ok=True)
-        
-    #     # 生成唯一的文件名（使用时间戳）
-    #     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    #     filename = f"image_{timestamp}.png"
-    #     save_path = os.path.join(save_dir, filename)
-        
-    #     # 保存图片
-    #     with open(save_path, "wb") as f:
-    #         f.write(open(image, "rb").read())
+
     image = Image.open(image)
     image_description = generate_image_description(image)
 
@@ -165,16 +105,6 @@ with gr.Blocks(css="""
             outputs=download_btn
         )
 
-            # def chat_with_audio():
-            #     #response = chat_fn(message, history)
-            #     audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
-            #     return audio_path
-                
-            # chatbot.chatbot.change(
-            #     fn=chat_with_audio,
-                
-            #     outputs=[audio_output]
-            # )
             
         
         with gr.Column():

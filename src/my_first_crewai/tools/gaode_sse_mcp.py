@@ -61,11 +61,11 @@ def get_summary_search(response):
     spot_list = response['pois'][:5]
     for one in spot_list:
         summary = {}
-        summary['name']=one['name']
-        summary['photos'] = []
+        summary['景点名称']=one['name']
+        summary['图片网址'] = []
         if one.get('photos',[]) != []:
             for one_pic in  one["photos"]:
-                summary['photos'].append(one_pic["url"])
+                summary['图片网址'].append(one_pic["url"])
         summary_list.append(summary)
     return summary_list
 

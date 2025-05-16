@@ -2,17 +2,17 @@
 import json
 import os
 import time
-from typing import List, Dict
 from dotenv import load_dotenv
+from my_first_crewai.const import ENV_FILE, REPORT_TXT_FILE, SUMMARY_FILE, WAV_FILE
+from my_first_crewai.tools.call_test_2 import call_wave2
 from my_first_crewai.tools.gaode_sse_mcp import get_jw, get_keyword_search
-from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
-from my_first_crewai.tools.travel_tools import IPLocationTool, WeatherTool
 from pydantic import BaseModel, Field
 from crewai import LLM
 from crewai.flow.flow import Flow, listen, start
 from openai import OpenAI
+import threading
 # Define our models for structured data
-load_dotenv("/home/gpu/work/my_first_crewai/.env")
+load_dotenv(ENV_FILE)
 key = os.getenv("DEEPSEEK_API_KEY")
 client = OpenAI(
     api_key=key,
@@ -114,21 +114,21 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
         outline_dict['camp_out'] = str(get_keyword_search(keyword='露营',location=outline_dict['destination_ll'],type='110000'))
         outline_dict['food'] =  str(get_keyword_search(keyword='美食',location=outline_dict['destination_ll'],type='050000'))
         self.state.guide_outline = GuideOutline(**outline_dict)
-   #     outline_dict['weather'] = WeatherTool()._run(outline_dict['source'])
         print(f"work flow during_time:", time.time()-start_time)
         print("camp_out:", outline_dict['camp_out'])
         print("food:", outline_dict['food'])
-        return self.state.guide_outline
+        return  self.state
 
 
 
-def write_and_compile_guide(outline):
+def write_and_compile_guide(state):
+        outline = state.guide_outline
         # Create the messages for the outline
         messages = [
             {"role": "system", "content": "你是一名活动规划师，研究并找到目的地有趣的活动，包括适合旅行者兴趣和年龄组的活动和事件。"},
             {"role": "user", "content": f"""
 重点关注适合露营者兴趣和年龄组以及同行人员的活动和事件。
-用户输入{self.state.input_text}：
+用户输入{state.input_text}：
 - 出发地：{outline.source}
 - 目的地：{outline.destination}
 - 旅行时长：{outline.during}
@@ -139,7 +139,7 @@ def write_and_compile_guide(outline):
 重点关注适合露营者兴趣和年龄组以及同行人员的活动和事件。
 输出：
     每天推荐的活动和事件列表。    
-    每个条目应包括活动名称、位置、图片、简短描述，以及为什么适合该旅行者。    
+    每个条目应包括景点名称、位置、图片、简短描述，以及为什么适合该旅行者。    
     所有内容必须使用简体中文输出。
 
 
@@ -154,56 +154,48 @@ def write_and_compile_guide(outline):
             stream=True,
 
         )
-        full_response = ""
+
+        #获取模型响应
+        response = "```markdown"
         for chunk in chat_response:
-            if "choices" in chunk:
-                delta = chunk["choices"][0]["delta"]
-                if "content" in delta:
-                    content = delta["content"]
-                    print(delta, end='', flush=True)
-                    full_response += content                
-                    yield full_response  # 通过 yield 实现流式输出
+            if chunk.choices[0].delta.content:
+                response += chunk.choices[0].delta.content
+                yield response
 
 
         print(f"all time during_time:", time.time()-start_time)
         
 
-        url = get_amap_url(self.state)
+        url = get_amap_url(state)
         content = f"[高德导航]({url})"
-        result = result + "\n" + content
-        result = result.replace("```markdown", "").replace("```", "")
-        file_path2 = r"/home/gpu/work/my_first_crewai/output/report.txt"  # 替换为实际的文件路径      
+        response = response + "\n" + content
+        response = response.replace("```markdown", "").replace("```", "")
 
         
-        with open(file_path2, 'w', encoding='utf-8') as file:
-            file.write(result)     
-        #markdown_to_pdf(result, file_path)
+        with open(REPORT_TXT_FILE, 'w', encoding='utf-8') as file:
+            file.write(response)    
+        yield response 
+
+        threading.Thread(target=save_summary_wav2, args=(response,), daemon=True).start()
+        print("response:finish")
+
+def save_summary_wav2(response):
+
+    summary = summary_result(response)
+    with open(SUMMARY_FILE, "w", encoding="utf-8") as file:
+        file.write(summary)
+
+    call_wave2(summary,WAV_FILE)
+    # 将音频文件保存在项目目录下    
 
 
-
-
-def kickoff():
+def kickoff3(ask):
     """Run the guide creator flow"""
-    ask = "2025.5.14出发，我31岁有两个孩子，到东莞松山湖，自驾游2天"
     result = GuideCreatorFlow().kickoff(inputs={"input_text": ask})
-    response = write_and_compile_guide(result)
-    for chunk in response:
-        print(chunk, end='', flush=True)
+    yield from write_and_compile_guide(result)
 
 
-def kickoff2():
-    """Run the guide creator flow"""
-    ask = "2025.5.14出发，我31岁有两个孩子，到东莞松山湖，自驾游2天"
-    result = GuideCreatorFlow().kickoff(inputs={"input_text": ask})
-    response = write_and_compile_guide(result)
-    for chunk in response:
-        print(chunk, end='', flush=True)
 
-def plot():
-    """Generate a visualization of the flow"""
-    flow = GuideCreatorFlow()
-    flow.plot("guide_creator_flow")
-    print("Flow visualization saved to guide_creator_flow.html")
 
 def get_amap_url(state):
     source = state.guide_outline.source_ll
@@ -244,4 +236,4 @@ if __name__ == "__main__":
     # summary = summary_result(content)
     # print("summary:",summary)
     
-    kickoff()
+    pass
