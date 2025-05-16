@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 import gradio as gr
 import os
+from my_first_crewai.tools.call_test_1 import call_wave
+from my_first_crewai.tools.call_test_2 import call_wave2
 import sounddevice as sd
 import numpy as np
 import wave
@@ -38,27 +40,42 @@ def chat_fn(message, history):
         messages = f"{messages}\n图片描述：{image_description}"
     response = my_flow.kickoff(inputs={"input_text": message})
     response = str(response)
-
+    with open(r"/home/gpu/work/my_first_crewai/output/report.txt", "w", encoding="utf-8") as file:
+        file.write(response)
     #response = "你好，我想去松山湖玩，你能和我一起吗？"
-    threading.Thread(target=save_summary_wav, args=(response,), daemon=True).start()
+    threading.Thread(target=save_summary_wav2, args=(response,), daemon=True).start()
 
     return response
 
-def save_summary_wav(response):
+# def save_summary_wav(response):
+#     gr.Warning("开始生成音频文件")
+#     summary = summary_result(response)
+#     with open(r"/home/gpu/work/my_first_crewai/output/summary.txt", "w", encoding="utf-8") as file:
+#         file.write(summary)
+#     appid = os.getenv("XF_TTS_APPID")
+#     apikey = os.getenv("XF_TTS_APIKEY")
+#     apisecret = os.getenv("XF_TTS_APISECRET")
+#     wav_bytes = get_xf_tts_ws_wav(summary, appid, apikey, apisecret, voice_name="xiaoyan")
+    
+#     # 将音频文件保存在项目目录下    
+#     audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
+#     os.makedirs(os.path.dirname(audio_path), exist_ok=True)
+#     with open(audio_path, "wb") as f:
+#         f.write(wav_bytes)
+#     gr.Warning("已经生成音频文件成功")
+
+def save_summary_wav2(response):
     gr.Warning("开始生成音频文件")
+
     summary = summary_result(response)
     with open(r"/home/gpu/work/my_first_crewai/output/summary.txt", "w", encoding="utf-8") as file:
         file.write(summary)
-    appid = os.getenv("XF_TTS_APPID")
-    apikey = os.getenv("XF_TTS_APIKEY")
-    apisecret = os.getenv("XF_TTS_APISECRET")
-    wav_bytes = get_xf_tts_ws_wav(summary, appid, apikey, apisecret, voice_name="xiaoyan")
-    
-    # 将音频文件保存在项目目录下    
     audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
-    os.makedirs(os.path.dirname(audio_path), exist_ok=True)
-    with open(audio_path, "wb") as f:
-        f.write(wav_bytes)
+
+    call_wave2(summary,audio_path)
+    # 将音频文件保存在项目目录下    
+
+
     gr.Warning("已经生成音频文件成功")
 
     
@@ -124,7 +141,7 @@ with gr.Blocks(css="""
                 elem_classes="logo-left"
             )
         with gr.Column():
-            gr.Markdown("# 佰鹿")
+            gr.Markdown("# 百鹿")
             gr.Markdown("### 您身边的露营推荐百晓生")
     
     with gr.Row():
@@ -174,7 +191,7 @@ with gr.Blocks(css="""
             image_input.change(
                 fn=process_image,
                 inputs=image_input,
-                outputs=[gr.Textbox(label="处理状态")]
+                
             )
     
 
