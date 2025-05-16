@@ -108,7 +108,7 @@ class GuideCreatorFlow(Flow[GuideCreatorState]):
             outline_dict['source'] = "东莞大朗镇"
         outline_dict['source_ll'] = get_jw(outline_dict['source'])
         if outline_dict['destination'] == '未提及':
-            outline_dict['destination'] = "东莞大朗镇"
+            outline_dict['destination'] = "东莞松山湖 "
         outline_dict['destination_ll'] = get_jw(outline_dict['destination'])
         
         outline_dict['camp_out'] = str(get_keyword_search(keyword='露营',location=outline_dict['destination_ll'],type='110000'))

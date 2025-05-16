@@ -44,7 +44,7 @@ def get_jw(address):
     return response['geocodes'][0]['location']
 
 
-def get_keyword_search(keyword,location,type,radius=5000):
+def get_keyword_search(keyword,location,type,radius=20000):
     #response = requests.get(f"https://restapi.amap.com/v3/place/around?key={key}&location={location}&keywords={keyword}&radius={radius}&types=110000")
     
     response = requests.get(f"https://restapi.amap.com/v5/place/around?key={key}&location={location}&keywords={keyword}&radius={radius}&types={type}&show_fields=photos&page_size=20")
