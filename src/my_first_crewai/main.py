@@ -6,10 +6,11 @@ import numpy as np
 import wave
 import io
 from my_first_crewai.image_processor import generate_image_description
-from my_first_crewai.my_flow import GuideCreatorFlow
+from my_first_crewai.my_flow import GuideCreatorFlow, summary_result
 from my_first_crewai.tools.markdown_pdf import markdown_to_pdf
 from PIL import Image
 from my_first_crewai.xf_tts import get_xf_tts_ws_wav
+import threading
 load_dotenv("/home/gpu/work/my_first_crewai/.env")
 
 #my_crew = MyFirstCrewai().crew()
@@ -39,20 +40,28 @@ def chat_fn(message, history):
     response = str(response)
 
     #response = "你好，我想去松山湖玩，你能和我一起吗？"
+    threading.Thread(target=save_summary_wav, args=(response,), daemon=True).start()
+
+    return response
+
+def save_summary_wav(response):
+    gr.Warning("开始生成音频文件")
+    summary = summary_result(response)
+    with open(r"/home/gpu/work/my_first_crewai/output/summary.txt", "w", encoding="utf-8") as file:
+        file.write(summary)
     appid = os.getenv("XF_TTS_APPID")
     apikey = os.getenv("XF_TTS_APIKEY")
     apisecret = os.getenv("XF_TTS_APISECRET")
-    wav_bytes = get_xf_tts_ws_wav(response, appid, apikey, apisecret, voice_name="xiaoyan")
+    wav_bytes = get_xf_tts_ws_wav(summary, appid, apikey, apisecret, voice_name="xiaoyan")
     
-    # 将音频文件保存在项目目录下
+    # 将音频文件保存在项目目录下    
     audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
     os.makedirs(os.path.dirname(audio_path), exist_ok=True)
     with open(audio_path, "wb") as f:
         f.write(wav_bytes)
+    gr.Warning("已经生成音频文件成功")
 
-    return response
-
-
+    
 def generate_file(content):
     # 创建一个临时文件
     gr.Warning("开始保存文件")

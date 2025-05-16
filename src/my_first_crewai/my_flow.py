@@ -194,5 +194,35 @@ def get_amap_url(state):
     url = f"https://uri.amap.com/navigation?from={source}&to={destination}&mode=car"
     return url
 
+
+
+def summary_result(content):
+    messages = [
+            {"role": "system", "content": "你是一名语言老师，擅长总结和归纳。"},
+            {"role": "user", "content": f"""                
+            请根据下边的内容，提炼总结核心的信息，不要包括图片和位置信息。
+
+            输入：{content}
+
+            结果：
+            """}
+
+        ]
+    
+    response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=messages,
+            stream=False,
+
+        )
+    return response.choices[0].message.content
+
+
+
 if __name__ == "__main__":
-    kickoff()
+    with open(r"/home/gpu/work/my_first_crewai/output/report.txt", "r", encoding="utf-8") as file:
+        content = file.read()
+    summary = summary_result(content)
+    print("summary:",summary)
+    
+    #kickoff()
