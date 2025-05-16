@@ -85,13 +85,12 @@ def process_image(image):
     image_description = generate_image_description(image)
 
     print("image_description:",image_description)
-    return image, f"图片描述：{image_description}"
+    return f"图片描述：{image_description}"
 
 
 # 创建 ChatInterface
 with gr.Blocks() as demo:
     gr.Markdown("# 智能周边游")
-    gr.Markdown("和大模型进行多轮对话。")
     
     with gr.Row():
         with gr.Column():
@@ -100,8 +99,20 @@ with gr.Blocks() as demo:
                 examples=["下周一，我31岁有两个孩子，从深圳到东莞松山湖，自驾游2天", "你是谁", "我明天计划和朋友一起去类似图中这样的地方露营，帮我推荐一下"],
             )
             #audio_output = gr.Audio(label="语音回复", type="filepath", autoplay=True)
-            audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
-            audio_output = gr.Audio(label="语音回复", type="filepath", value=audio_path)
+
+            with gr.Row():
+                audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
+                audio_output = gr.Audio(label="语音回复", type="filepath", value=audio_path)
+            
+                with gr.Column():
+                    generate_btn = gr.Button("生成报告文件")
+                    download_btn = gr.DownloadButton(label="下载报告文件")
+        
+        generate_btn.click(
+            generate_file,
+            outputs=download_btn
+        )
+
             # def chat_with_audio():
             #     #response = chat_fn(message, history)
             #     audio_path = os.path.join(os.path.dirname(__file__), "output", "test_ws_xf_tts_3.wav")
@@ -124,22 +135,13 @@ with gr.Blocks() as demo:
                 width=300,
                 format="png"
             )
-            image_output = gr.Image(label="预览图片", height=300, width=300)
             
             image_input.change(
                 fn=process_image,
                 inputs=image_input,
-                outputs=[image_output, gr.Textbox(label="处理状态")]
+                outputs=[gr.Textbox(label="处理状态")]
             )
     
-    with gr.Blocks():
-        generate_btn = gr.Button("生成报告文件")
-        download_btn = gr.DownloadButton(label="下载报告文件")
-        
-        generate_btn.click(
-            generate_file,
-            outputs=download_btn
-        )
 
 
 
