@@ -1,3 +1,4 @@
+from my_first_crewai.const import ZERO_SHOT_PROMPT_FILE
 import requests
 import numpy as np
 
@@ -6,7 +7,7 @@ import numpy as np
 def call_wave2(text,file_path):
     try:
         url = "http://ry2.9gpu.com:43026/inference_zero_shot"
-        zero_path = r'/home/gpu/work/my_first_crewai/src/my_first_crewai/tools/zero_shot_prompt.wav'
+        zero_path = ZERO_SHOT_PROMPT_FILE
         # 准备请求数据
         files = {
             'prompt_wav': ('prompt.wav', open(zero_path, 'rb'), 'audio/wav')
